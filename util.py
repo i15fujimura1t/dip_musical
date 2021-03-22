@@ -2,6 +2,8 @@ import soundfile as sf
 import numpy as np
 from scipy import signal
 import scipy.fftpack as scft
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
 
 def wavread(fn):
     data, sr = sf.read(fn)
@@ -55,3 +57,31 @@ def istft(X, win=np.hamming, fftl=512, shift=128, winl=None, x_len=None, oneside
     if x_len is not None:
         x = x[:x_len]
     return x
+
+def specshow(x, sr=16000, win=np.hamming, fftl=512, shift=128, winl=None, title='', mode='mesh', fig_size=(6,3), ax=None, c_map='magma', v_min=None, v_max=None, save_path=None):
+    if winl is None:
+        winl = fftl
+    assert (winl <= fftl), "FFT length < window length."
+    win = np.pad(np.hamming(winl),[int(np.ceil((fftl-winl)/2)),int(np.floor((fftl-winl)/2))], 'constant')
+    if len(x.shape)==1:
+        X = stft(x, win, fftl, shift)
+        f = np.linspace(0, sr//2, X.shape[1])
+        t = np.arange(X.shape[0])*shift/sr
+    else:
+        X = x[:,:fftl//2+1]
+        f = np.linspace(0, sr//2, X.shape[1])
+        t = np.arange(X.shape[0])*shift/sr
+    if ax is None:
+        plt.figure(figsize=fig_size)
+        if(mode=='mesh'):im=plt.pcolormesh(t, f, 20*np.log10(np.abs(X.T)+1e-8), cmap=c_map, norm=Normalize(vmin=v_min, vmax=v_max))
+        elif(mode=='imshow'):im=plt.imshow(20*np.log10(np.abs(X.T)+1e-8)[::-1,:], cmap=c_map, extent=[0,t[-1],0,f[-1]], aspect='auto', norm=Normalize(vmin=v_min, vmax=v_max))
+        plt.title(title)
+        plt.ylabel('Freq. [Hz]')
+        plt.xlabel('Time [sec]')
+        plt.colorbar(format='%+2.0f dB')
+        if(save_path is not None):
+            plt.savefig('%s' %(save_path))
+            plt.show()
+    else:
+        if(mode=='mesh'):im=ax.pcolormesh(t, f, 20*np.log10(np.abs(X.T)+1e-8), cmap=c_map, norm=Normalize(vmin=v_min, vmax=v_max))
+        elif(mode=='imshow'):im=ax.imshow(20*np.log10(np.abs(X.T)+1e-8)[::-1,:], cmap=c_map, extent=[0,t[-1],0,f[-1]], aspect='auto', norm=Normalize(vmin=v_min, vmax=v_max))
