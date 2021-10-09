@@ -49,6 +49,7 @@ def dip_mscl_batch(s_hat, mode='unet', num_iter=1000, avg_num=1, avg_mode='mean'
             if mode=='unet': out_np = out_np[:,:,pad1:, pad2:]
             if avg_mode=='mean': out_avg = np.mean(out_np[:,0], axis=0)
             elif avg_mode=='median': out_avg = np.median(out_np[:,0], axis=0)
+            else: out_avg = out_np
             out_wav = istft(out_avg*np.exp(1j*np.angle(S_hat)),x_len=len(s_hat))
             plt.clf()
             specshow(out_wav, fig_size=(10, 3), v_min=-100, v_max=40)
