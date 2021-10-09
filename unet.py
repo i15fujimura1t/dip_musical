@@ -19,7 +19,6 @@ class Unet(nn.Module):
         self.last = Last(16, 8)
 
     def forward(self, x):
-        print('a')
         x = self.down1(x)
         x = self.down2(x)
         x3 = self.down3(x)
