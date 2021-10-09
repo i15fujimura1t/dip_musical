@@ -104,7 +104,8 @@ class Last(nn.Module):
             nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=1, bias=True),
             nn.BatchNorm2d(out_channels),
             nn.LeakyReLU(0.2),
-            nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True)
+            nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True),
+            nn.ReLU()
         )
 
     def forward(self, x):
