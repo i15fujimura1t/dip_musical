@@ -3,7 +3,7 @@ import torch.optim
 import torch.nn as nn
 
 class Unet(nn.Module):
-    def __init__(self):
+    def __init__(self, isrelu=False):
         super().__init__()
         self.down1 = Down(1, 8)
         self.down2 = Down(8, 16)
@@ -16,7 +16,7 @@ class Unet(nn.Module):
         self.up2 = Up(132, 64)
         self.up3 = Up(64, 32)
         self.up4 = Up(32, 16)
-        self.last = Last(16, 8)
+        self.last = Last(16, 8, isrelu)
 
     def forward(self, x):
         x = self.down1(x)
@@ -93,20 +93,33 @@ class DownUp(nn.Module):
 class Last(nn.Module):
     'convolute into 1 channel'
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, isrelu):
         super().__init__()
-        self.last = nn.Sequential(
-            nn.BatchNorm2d(in_channels),
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, bias=True),
-            nn.BatchNorm2d(out_channels),
-            nn.LeakyReLU(0.2),
-            nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=1, bias=True),
-            nn.BatchNorm2d(out_channels),
-            nn.LeakyReLU(0.2),
-            nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True),
-            nn.ReLU()
-        )
+        if isrelu:
+            self.last = nn.Sequential(
+                nn.BatchNorm2d(in_channels),
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, bias=True),
+                nn.BatchNorm2d(out_channels),
+                nn.LeakyReLU(0.2),
+                nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=1, bias=True),
+                nn.BatchNorm2d(out_channels),
+                nn.LeakyReLU(0.2),
+                nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True),
+                nn.ReLU()
+            )
+        else:
+            self.last = nn.Sequential(
+                nn.BatchNorm2d(in_channels),
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, bias=True),
+                nn.BatchNorm2d(out_channels),
+                nn.LeakyReLU(0.2),
+                nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=1, bias=True),
+                nn.BatchNorm2d(out_channels),
+                nn.LeakyReLU(0.2),
+                nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True)
+            )
 
     def forward(self, x):
         return self.last(x)
