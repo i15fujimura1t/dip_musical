@@ -10,7 +10,7 @@ def pad32(x):
     m = nn.ZeroPad2d((pad2, 0, pad1, 0))
     return m(x), pad1, pad2
 
-def dip_mscl_batch(s_hat, mode='unet', num_iter=1000, avg_num=1, avg_mode='mean', plot_every=200, seed=1234, device='cpu'):
+def dip_mscl_batch(s_hat, mode='unet', num_iter=1000, avg_num=1, avg_mode='mean', plot_every=200, seed=1234, device='cpu', isrelu=False):
     S_hat = stft(s_hat, win=np.hamming, fftl=512, shift=128)
     As_hat = np.abs(S_hat)
     As_hat[As_hat==0] = np.spacing(1)
@@ -23,7 +23,7 @@ def dip_mscl_batch(s_hat, mode='unet', num_iter=1000, avg_num=1, avg_mode='mean'
     target = target.to(device)
     torch.manual_seed(seed)
     if mode=='unet':
-        model = Unet().to(device)
+        model = Unet(isrelu).to(device)
     elif mode=='blstm':
         FFTL = 512
         IN_DIM = int(FFTL/2+1)
