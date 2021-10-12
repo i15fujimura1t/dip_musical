@@ -7,7 +7,7 @@ def pad32(x):
     shape = x.shape
     pad1 = 32-shape[2]%32
     pad2 = 32-shape[3]%32
-    m = nn.ZeroPad2d((pad2, 0, pad1, 0))
+    m = nn.ReflectionPad2d((pad2, 0, pad1, 0))
     return m(x), pad1, pad2
 
 def dip_mscl_batch(s_hat, mode='unet', num_iter=1000, avg_num=1, avg_mode='mean', plot_every=200, seed=1234, device='cpu', isrelu=False):
