@@ -8,9 +8,13 @@ def pad32(x):
     m = nn.ZeroPad2d((pad2, 0, pad1, 0))
     return m(x), pad1, pad2
 
-def dip_musical(s_musical, num_iter=100, avg_num=3, plot_every=30, isrelu_=True, device='cuda:0', seed=1234):
+def dip_musicall(s_hat):
+    plot_every = 30
+    device = 'cuda:0'
+    avg_num=3
+    seed  =123
 
-    S_hat = stft(s_musical, win=np.hamming, fftl=512, shift=128)
+    S_hat = stft(s_hat, win=np.hamming, fftl=512, shift=128)
     As_hat = np.abs(S_hat)
     As_hat[As_hat==0] = np.spacing(1)
     target = torch.from_numpy(As_hat).clone()
@@ -22,7 +26,7 @@ def dip_musical(s_musical, num_iter=100, avg_num=3, plot_every=30, isrelu_=True,
     target = target.to(device)
     torch.manual_seed(seed)
 
-    model = Unet(isrelu_).to(device)
+    model = Unet(True).to(device)
     L1 = torch.nn.L1Loss().to(device)
 
     params = []
@@ -31,7 +35,7 @@ def dip_musical(s_musical, num_iter=100, avg_num=3, plot_every=30, isrelu_=True,
     net_input = torch.rand(size=target.shape)*0.1
     net_input = net_input.to(device)
 
-    for i in range(num_iter+1):
+    for i in range(100+1):
         print('\r%d回目' %(i), end='')
         optimizer.zero_grad()
         net_out = model(net_input)
@@ -40,7 +44,7 @@ def dip_musical(s_musical, num_iter=100, avg_num=3, plot_every=30, isrelu_=True,
             net_out = net_out.to('cuda')
             print(net_out.shape)
             out = out_np[0,0,pad1:, pad2:]
-            proc = istft(out*np.exp(1j*np.angle(S_hat)),x_len=len(s_musical))
+            proc = istft(out*np.exp(1j*np.angle(S_hat)),x_len=len(s_hat))
             plt.clf()
             specshow(proc, fig_size=(10, 3), v_min=-100, v_max=40, title='result %d' %(i))
             plt.pause(0.05)
@@ -53,5 +57,5 @@ def dip_musical(s_musical, num_iter=100, avg_num=3, plot_every=30, isrelu_=True,
     out_np = net_out.to('cpu').detach().numpy().copy()
     out = out_np[0,0,pad1:, pad2:]
 
-    proc = istft(out*np.exp(1j*np.angle(S_hat)),x_len=len(s_musical))
+    proc = istft(out*np.exp(1j*np.angle(S_hat)),x_len=len(s_hat))
     return proc
