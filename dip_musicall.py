@@ -8,7 +8,11 @@ def pad32(x):
     m = nn.ZeroPad2d((pad2, 0, pad1, 0))
     return m(x), pad1, pad2
 
-def dip_musical(s_hat, plot_every=30, device='cuda:0', avg_num=3, seed=1234):
+def dip_musicall(s_hat):
+    plot_every = 30
+    device = 'cuda:0'
+    avg_num=3
+    seed  =123
 
     S_hat = stft(s_hat, win=np.hamming, fftl=512, shift=128)
     As_hat = np.abs(S_hat)
