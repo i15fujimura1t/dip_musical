@@ -107,7 +107,7 @@ class Last(nn.Module):
                 nn.LeakyReLU(0.2),
                 nn.Conv2d(out_channels, 1, kernel_size=1, stride=1, bias=True),
                 #nn.ReLU()
-                nn.sigmoid()
+                nn.Sigmoid()
             )
         else:
             self.last = nn.Sequential(
