@@ -39,6 +39,7 @@ def dip_musical(s_musical, num_iter=1000, avg_num=1, plot_every=100, isrelu=Fals
             net_out = net_out.to(device)
             out_np = out_np[:,:,pad1:, pad2:]
             out_mdn = np.median(out_np[:,0], axis=0)
+            out_mdn[out_mdn<0] = 0
             proc = istft(out_mdn*np.exp(1j*np.angle(S_musical)), win=np.hamming, fftl=512, shift=128, x_len=len(s_musical))
             plt.clf()
             specshow(proc, fig_size=(10, 3), v_min=-100, v_max=40, title='iter. %d' %(i))
@@ -51,5 +52,6 @@ def dip_musical(s_musical, num_iter=1000, avg_num=1, plot_every=100, isrelu=Fals
     out_np = net_out.to('cpu').detach().numpy().copy()
     out_np = out_np[:,:,pad1:, pad2:]
     out_mdn = np.median(out_np[:,0], axis=0)
+    out_mdn[out_mdn<0] = 0
     proc = istft(out_mdn*np.exp(1j*np.angle(S_musical)), win=np.hamming, fftl=512, shift=128, x_len=len(s_musical))
     return proc
